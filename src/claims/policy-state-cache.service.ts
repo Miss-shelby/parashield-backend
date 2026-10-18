@@ -314,7 +314,7 @@ export class PolicyStateCacheService implements OnModuleInit, OnModuleDestroy {
 
     if (reading) {
       readingValueStr = reading.value.toString();
-      readingTimestamp = reading.bucketStart.getTime();
+      readingTimestamp = reading.timestamp ? reading.timestamp * 1000 : (reading as any).bucketStart?.getTime?.() ?? null;
       const readingVal = BigInt(reading.value);
       triggerMet =
         product.comparison === 'LessThan'
