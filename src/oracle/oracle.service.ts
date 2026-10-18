@@ -130,6 +130,12 @@ export interface OracleReading {
   source: string;
   /** OK when the upstream returned real data, NO_DATA when the value is unknown (#171). */
   status?: "OK" | "NO_DATA";
+  /**
+   * #712 — Start of the idempotency bucket this reading was stored under. Set
+   * when a reading is loaded from the database; optional because upstream
+   * fetches build readings before they are persisted.
+   */
+  bucketStart?: Date;
 }
 
 /** Length of an oracle idempotency bucket in ms — matches the hourly cron cadence (#172). */
@@ -343,6 +349,8 @@ export class OracleService {
       confidence: record.confidence,
       timestamp: Math.floor(record.submittedAt.getTime() / 1000),
       source: record.source,
+      // #712 — expose the bucket start so callers can report it as the reading time.
+      bucketStart: record.bucketStart,
     }));
   }
 
@@ -375,6 +383,8 @@ export class OracleService {
           confidence: record.confidence,
           timestamp: Math.floor(record.submittedAt.getTime() / 1000),
           source: record.source,
+          // #712 — expose the bucket start so callers can report it as the reading time.
+          bucketStart: record.bucketStart,
         }
       : null;
 
